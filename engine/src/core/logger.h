@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.h"
+#include "asserts.h"
 
 #define LOG_WARN_ENABLED 1
 #define LOG_INFO_ENABLED 1

@@ -1,9 +1,15 @@
 #include "logger.h"
+#include "asserts.h"
 
 // TODO: Temporary.
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+
+void report_assertion_failure(const char * expr, const char * message, const char * file, i32 line)
+{
+    log_output(LOG_LEVEL_FATAL, "Assertion Failure: %s, message: %s, in file: %s, at line: %d\n", expr, message, file, line);
+}
 
 b8 initialize_logging()
 {

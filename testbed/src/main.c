@@ -11,6 +11,8 @@ int main(void)
     ADEBUG("A test message: %f", 3.14f);
     ATRACE("A test message: %f", 3.14f);
 
+    AASSERT(1 == 0);
+
     shutdown_logging();
 
     return 0;
