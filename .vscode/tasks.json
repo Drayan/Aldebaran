@@ -1,0 +1,59 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build Engine",
+            "windows": {
+                "command": "${workspaceFolder}/engine/build.bat"
+            },
+            "osx":{
+                "command": "${workspaceFolder}/engine/build-osx.sh"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/engine"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "Build Testbed",
+            "windows": {
+                "command": "${workspaceFolder}/testbed/build.bat"
+            },
+            "osx":{
+                "command": "${workspaceFolder}/testbed/build-osx.sh"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/testbed"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "Build All",
+            "windows": {
+                "command": "${workspaceFolder}/build-all.bat"
+            },
+            "osx":{
+                "command": "${workspaceFolder}/build-all-osx.sh"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ],
+    "version": "2.0.0"
+}

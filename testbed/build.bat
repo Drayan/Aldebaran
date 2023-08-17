@@ -1,4 +1,4 @@
-REM Build script for engine
+REM Build script for testbed
 @ECHO OFF
 SetLocal EnableDelayedExpansion
 
@@ -10,12 +10,12 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files:" %cFilenames%
 
-SET assembly=engine
-SET compilerFlags=-g -shared -Wvarargs -Wall -Werror
-SET includeFlags=-Isrc -I%VULKAN_SDK%/Include
-SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib
-SET defines=-D_DEBUG -DAEXPORT -DCRT_SECURE_NO_WARNINGS
-SET extension=dll
+SET assembly=testbed
+SET compilerFlags=-g
+SET includeFlags=-Isrc -I../engine/src/
+SET linkerFlags=-L../bin/ -lengine.lib
+SET defines=-D_DEBUG -DAIMPORT
+SET extension=exe
 
 ECHO "Building %assembly%% ..."
 clang %cFilenames% %compilerFlags% -o ../bin/%assembly%.%extension% %defines% %includeFlags% %linkerFlags%
