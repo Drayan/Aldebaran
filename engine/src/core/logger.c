@@ -25,7 +25,8 @@ void shutdown_logging()
 void log_output(log_level level, const char* message, ...)
 {
     const char* level_strings[6] = {"[FATAL]: ", "[ERROR]: ", " [WARN]: ", " [INFO]: ", "[DEBUG]: ", "[TRACE]: "};
-    b8 is_error = level < 2;
+    // NOTE: Disabled, cause an error on windows because this isn't used.
+    // b8 is_error = level < 2;
 
     // Technically imposes a 32k character limit on a single log entry, but...
     // DON'T DO THAT!
