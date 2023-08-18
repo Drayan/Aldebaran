@@ -1,7 +1,7 @@
 #include "darray.h"
 
-#include "logger.h"
-#include "amemory.h"
+#include "core/logger.h"
+#include "core/amemory.h"
 
 void *_darray_create(u64 length, u64 stride)
 {

@@ -1,6 +1,7 @@
 #include "event.h"
 
 #include "amemory.h"
+#include "logger.h"
 #include "containers/darray.h"
 
 typedef struct registered_event
