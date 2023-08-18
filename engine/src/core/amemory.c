@@ -5,6 +5,7 @@
 
 //TODO: Custom string lib
 #include <string.h>
+#include <stdio.h>
 
 struct memory_stats
 {
@@ -109,7 +110,7 @@ char *get_memory_usage_str()
             unit[0] = 'G';
             amount = stats.tagged_allocations[i] / (float)gib;
         }
-        else if(stats.tagged_allocations >= mib)
+        else if(stats.tagged_allocations[i] >= mib)
         {
             unit[0] = 'M';
             amount = stats.tagged_allocations[i] / (float)mib;
