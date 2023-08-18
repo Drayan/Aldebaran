@@ -11,9 +11,8 @@ void platform_shutdown(platform_state* plat_state);
 
 b8 platform_pump_message(platform_state* plat_state);
 
-// TODO: Remove these exports.
-AAPI void* platform_allocate(u64 size, b8 aligned);
-AAPI void  platform_free(void* block, b8 aligned);
+void* platform_allocate(u64 size, b8 aligned);
+void  platform_free(void* block, b8 aligned);
 void* platform_zero_memory(void* block, u64 size);
 void* platform_copy_memory(void* dest, const void* source, u64 size);
 void* platform_set_memory(void* dest, i32 value, u64 size);
