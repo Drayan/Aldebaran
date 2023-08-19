@@ -131,6 +131,6 @@ char *get_memory_usage_str()
         offset += length;
     }
 
-    char* out_string = _strdup(buffer);
+    char* out_string = strdup(buffer);
     return out_string;
 }

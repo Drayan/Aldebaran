@@ -22,6 +22,16 @@
             "cwd": "${workspaceFolder}/bin/",
             "MIMode": "lldb",
             "environment": []
+        },
+        {
+            "name": "(Linux) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/testbed",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin/",
+            "environment": []
         }
     ]
 }

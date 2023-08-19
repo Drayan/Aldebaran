@@ -256,6 +256,10 @@ LRESULT win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param
             // b8 pressed = msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN;
             // TODO: input processing.
         } break;
+
+        default:
+            // Anything else.
+            break;
     }
 
     return DefWindowProcA(hwnd, msg, w_param, l_param);

@@ -52,7 +52,7 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #endif
 #elif defined(__linux__) || defined(__gnu_linux__)
 // Linux
-#define APLATFORM_LINUX 1<
+#define APLATFORM_LINUX 1
 #if defined(__ANDROID__)
 #define APLATFORM_ANDROID 1
 #endif

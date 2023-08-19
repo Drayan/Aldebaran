@@ -11,8 +11,8 @@ cFilenames=$(find . -type f -name "*.c")
 
 assembly="engine"
 compilerFlags="-g -shared -fdeclspec -fPIC"
-includeFlags="-Isrc -I$VULKAN_SDK/include"
-linkerFlags="-lvulkan -L$VULKAN_SDK/lib"
+includeFlags="-Isrc"
+linkerFlags="-lvulkan -lxcb -lX11 -lX11-xcb -lxkbcommon -L/usr/lib64/X11"
 defines="-D_DEBUG -DAEXPORT"
 extension="so"
 
