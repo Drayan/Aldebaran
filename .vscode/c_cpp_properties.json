@@ -19,6 +19,24 @@
             "intelliSenseMode": "clang-x64"
         },
         {
+            "name": "Win32-aarch64",
+            "includePath": [
+                "${workspaceFolder}/engine/src/**",
+                "${VULKAN_SDK}/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "AEXPORT"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "C:/Program Files/LLVM/bin/clang.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-arm64"
+        },
+        {
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/engine/src/**",

@@ -66,6 +66,8 @@ void input_process_key( keys key, b8 pressed )
         event_context context;
         context.data.u16[0] = key;
         event_fire( pressed ? EVENT_CODE_KEY_PRESSED : EVENT_CODE_KEY_RELEASED, 0, context );
+
+        // ADEBUG("Key %i state changed!", key);
     }
 }
 
@@ -82,6 +84,8 @@ void input_process_mouse_button( mouse_buttons button, b8 pressed )
         event_fire( pressed ? EVENT_CODE_MOUSE_BUTTON_PRESSED : EVENT_CODE_MOUSE_BUTTON_RELEASED,
             0,
             context );
+
+        // ADEBUG("Mouse button %i state changed!", button);
     }
 }
 
@@ -91,7 +95,7 @@ void input_process_mouse_move( i16 x, i16 y )
     if( state.mouse_current.x != x || state.mouse_current.y != y )
     {
         // NOTE: Enable this for debugging.
-        ADEBUG( "Mouse pos: %i, %i!", x, y );
+        // ADEBUG( "Mouse pos: %i, %i!", x, y );
 
         // Update the internal state.
         state.mouse_current.x = x;
