@@ -131,6 +131,10 @@ char *get_memory_usage_str()
         offset += length;
     }
 
+#if APLATFORM_WINDOWS
+    char* out_string = _strdup(buffer);
+#else
     char* out_string = strdup(buffer);
+#endif
     return out_string;
 }
