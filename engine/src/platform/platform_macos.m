@@ -20,15 +20,15 @@
 
 typedef struct macos_handle_info
 {
-    CAMetalLayer* layer;
+    CAMetalLayer *layer;
 } macos_handle_info;
 
 typedef struct internal_state
 {
-    ApplicationDelegate* app_delegate;
-    WindowDelegate* wnd_delegate;
-    NSWindow* window;
-    ContentView* view;
+    ApplicationDelegate *app_delegate;
+    WindowDelegate *wnd_delegate;
+    NSWindow *window;
+    ContentView *view;
     macos_handle_info handle;
     b8 quit_flagged;
     u8 modifier_key_states;
@@ -46,7 +46,7 @@ enum macos_modifier_keys
     MACOS_MODIFIER_KEY_RCOMMAND = 0x80
 } macos_modifier_keys;
 
-static platform_state* state_ptr;
+static platform_state *state_ptr;
 
 // Key translation
 static keys translate_keycode(u32 ns_keycode);
@@ -56,30 +56,30 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags);
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>
 {
-    platform_state* state;
+    platform_state *state;
 }
 
-- (instancetype)initWithState:(platform_state*)init_state;
+- (instancetype)initWithState:(platform_state *)init_state;
 
 @end // WindowDelegate
 
 @interface ContentView : NSView <NSTextInputClient>
 {
-    NSWindow* window;
-    NSTrackingArea* trackingArea;
-    NSMutableAttributedString* markedText;
+    NSWindow *window;
+    NSTrackingArea *trackingArea;
+    NSMutableAttributedString *markedText;
 }
 
-- (instancetype)initWithWindow:(NSWindow*)initWindow;
+- (instancetype)initWithWindow:(NSWindow *)initWindow;
 
 @end // ContentView
 
 @implementation ContentView
 
-- (instancetype)initWithWindow:(NSWindow*)initWindow
+- (instancetype)initWithWindow:(NSWindow *)initWindow
 {
     self = [super init];
-    if(self != nil)
+    if (self != nil)
     {
         window = initWindow;
     }
@@ -102,31 +102,31 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags);
     return YES;
 }
 
-- (BOOL)acceptsFirstMouse:(NSEvent*)event
+- (BOOL)acceptsFirstMouse:(NSEvent *)event
 {
     return YES;
 }
 
-- (void)mouseDown:(NSEvent*)event
+- (void)mouseDown:(NSEvent *)event
 {
     input_process_mouse_button(MOUSE_BUTTON_LEFT, true);
 }
 
-- (void)mouseDragged:(NSEvent*)event
+- (void)mouseDragged:(NSEvent *)event
 {
     // Equivalent to moving the mouve for now.
     [self mouseMoved:event];
 }
 
-- (void)mouseUp:(NSEvent*)event
+- (void)mouseUp:(NSEvent *)event
 {
     input_process_mouse_button(MOUSE_BUTTON_LEFT, false);
 }
 
-- (void)mouseMoved:(NSEvent*)event
+- (void)mouseMoved:(NSEvent *)event
 {
     const NSPoint pos = [event locationInWindow];
-    internal_state* state = (internal_state*)state_ptr->internal_state;
+    internal_state *state = (internal_state *)state_ptr->internal_state;
 
     // Neew to invert Y on macOS, since origin is bottom-left.
     // Also need to scale the mouse position by the device pixel ratio so screen lookups are correct.
@@ -137,91 +137,120 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags);
     input_process_mouse_move(x, y);
 }
 
-- (void)rightMouseDown:(NSEvent*)event
+- (void)rightMouseDown:(NSEvent *)event
 {
     input_process_mouse_button(MOUSE_BUTTON_RIGHT, true);
 }
 
-- (void)rightMouseDragged:(NSEvent*)event
+- (void)rightMouseDragged:(NSEvent *)event
 {
     // Equivalent to moving the mouse for now
     [self mouseMoved:event];
 }
 
-- (void)rightMouseUp:(NSEvent*)event
+- (void)rightMouseUp:(NSEvent *)event
 {
     input_process_mouse_button(MOUSE_BUTTON_RIGHT, false);
 }
 
-- (void)otherMouseDown:(NSEvent*)event
+- (void)otherMouseDown:(NSEvent *)event
 {
     // Interpreted as middle button.
     input_process_mouse_button(MOUSE_BUTTON_MIDDLE, true);
 }
 
-- (void)otherMouseDragged:(NSEvent*)event
+- (void)otherMouseDragged:(NSEvent *)event
 {
     // Equivalent to moving the mouse for now
     [self mouseMoved:event];
 }
 
-- (void)otherMouseUp:(NSEvent*)event
+- (void)otherMouseUp:(NSEvent *)event
 {
     // Interpreted as middle button.
     input_process_mouse_button(MOUSE_BUTTON_MIDDLE, false);
 }
 
 // Handle modifier keys since they are only registered via modifier flags being set/unset.
-- (void)flagsChanged:(NSEvent*)event
+- (void)flagsChanged:(NSEvent *)event
 {
     handle_modifier_keys([event keyCode], [event modifierFlags]);
 }
 
-- (void)keyDown:(NSEvent*)event
+- (void)keyDown:(NSEvent *)event
 {
     keys key = translate_keycode((u32)[event keyCode]);
 
     input_process_key(key, true);
 }
 
-- (void)keyUp:(NSEvent*)event
+- (void)keyUp:(NSEvent *)event
 {
     keys key = translate_keycode((u32)[event keyCode]);
 
     input_process_key(key, false);
 }
 
-- (void)scrollWheel:(NSEvent*)event
+- (void)scrollWheel:(NSEvent *)event
 {
     input_process_mouse_wheel((i8)[event scrollingDeltaY]);
 }
 
-- (void)insertText:(id)string replacementRange:(NSRange)replacementRange {}
+- (void)insertText:(id)string replacementRange:(NSRange)replacementRange
+{
+}
 
-- (void)setMarkedText:(id)string selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {}
+- (void)setMarkedText:(id)string selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
+{
+}
 
-- (void) unmarkText {}
+- (void)unmarkText
+{
+}
 
 // Defines a constant for empty ranges in NSTextInputClient
-static const NSRange EMPTY_RANGE = { NSNotFound, 0 };
+static const NSRange EMPTY_RANGE = {NSNotFound, 0};
 
-- (NSRange)selectedRange { return EMPTY_RANGE; }
+- (NSRange)selectedRange
+{
+    return EMPTY_RANGE;
+}
 
-- (NSRange)markedRange { return EMPTY_RANGE; }
+- (NSRange)markedRange
+{
+    return EMPTY_RANGE;
+}
 
-- (BOOL)hasMarkedText { return false; }
+- (BOOL)hasMarkedText
+{
+    return false;
+}
 
-- (nullable NSAttributedString *)attributedSubstringForProposedRange:(NSRange)range actualRange:(nullable NSRangePointer)actualRange { return nil; }
+- (nullable NSAttributedString *)attributedSubstringForProposedRange:(NSRange)range actualRange:(nullable NSRangePointer)actualRange
+{
+    return nil;
+}
 
-- (NSArray<NSAttributedStringKey>*)validAttributesForMarkedText { return [NSArray array]; }
+- (NSArray<NSAttributedStringKey> *)validAttributesForMarkedText
+{
+    return [NSArray array];
+}
 
-- (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(nullable NSRangePointer)actualRange { return NSMakeRect(0, 0, 0, 0); }
+- (NSRect)firstRectForCharacterRange:(NSRange)range actualRange:(nullable NSRangePointer)actualRange
+{
+    return NSMakeRect(0, 0, 0, 0);
+}
 
-- (NSUInteger)characterIndexForPoint:(NSPoint)point { return 0; }
+- (NSUInteger)characterIndexForPoint:(NSPoint)point
+{
+    return 0;
+}
 
 @end // ContentView
 
-@interface ApplicationDelegate : NSObject <NSApplicationDelegate> {}
+@interface ApplicationDelegate : NSObject <NSApplicationDelegate>
+{
+}
 
 @end // ApplicationDelegate
 
@@ -229,10 +258,10 @@ static const NSRange EMPTY_RANGE = { NSNotFound, 0 };
 
 - (void)applicationDidFinishLaunching:(NSNotification *)NSNotification
 {
-    //Positing and empty event at start
+    // Positing and empty event at start
     @autoreleasepool
     {
-        NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+        NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
                                             location:NSMakePoint(0, 0)
                                        modifierFlags:0
                                            timestamp:0
@@ -251,17 +280,17 @@ static const NSRange EMPTY_RANGE = { NSNotFound, 0 };
 
 /**
  * WindowDelegate implementation
-*/
+ */
 @implementation WindowDelegate
 
-- (instancetype)initWithState:(platform_state*)init_state
+- (instancetype)initWithState:(platform_state *)init_state
 {
     self = [super init];
 
-    if(self != nil)
+    if (self != nil)
     {
         state = init_state;
-        internal_state* int_state = (internal_state*)state_ptr->internal_state;
+        internal_state *int_state = (internal_state *)state_ptr->internal_state;
         int_state->quit_flagged = FALSE;
     }
 
@@ -270,7 +299,7 @@ static const NSRange EMPTY_RANGE = { NSNotFound, 0 };
 
 - (BOOL)windowShouldClose:(id)sender
 {
-    internal_state* int_state = (internal_state*)state_ptr->internal_state;
+    internal_state *int_state = (internal_state *)state_ptr->internal_state;
     int_state->quit_flagged = TRUE;
 
     event_context context = {};
@@ -281,10 +310,10 @@ static const NSRange EMPTY_RANGE = { NSNotFound, 0 };
 
 @end // WindowDelegate
 
-b8 platform_startup(platform_state* plat_state, const char* application_name, i32 x, i32 y, i32 width, i32 height)
+b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
 {
     plat_state->internal_state = malloc(sizeof(internal_state));
-    internal_state* state = (internal_state*)plat_state->internal_state;
+    internal_state *state = (internal_state *)plat_state->internal_state;
     state_ptr = plat_state;
 
     @autoreleasepool
@@ -293,7 +322,7 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
 
         // App delegate creation
         state->app_delegate = [[ApplicationDelegate alloc] init];
-        if(!state->app_delegate)
+        if (!state->app_delegate)
         {
             AERROR("Failed to create application delegate.");
             return FALSE;
@@ -302,7 +331,7 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
 
         // Window delegate creation
         state->wnd_delegate = [[WindowDelegate alloc] initWithState:state_ptr];
-        if(!state->wnd_delegate)
+        if (!state->wnd_delegate)
         {
             AERROR("Failed to create window delegate.");
             return FALSE;
@@ -311,10 +340,10 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
         // Window creation
         state->window = [[NSWindow alloc]
             initWithContentRect:NSMakeRect(x, y, width, height)
-            styleMask:NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskResizable
-            backing:NSBackingStoreBuffered
-            defer:NO];
-        if(!state->window)
+                      styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
+                        backing:NSBackingStoreBuffered
+                          defer:NO];
+        if (!state->window)
         {
             AERROR("Failed to create window.");
             return FALSE;
@@ -326,7 +355,7 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
 
         // Layer creation
         state->handle.layer = [CAMetalLayer layer];
-        if(!state->handle.layer)
+        if (!state->handle.layer)
         {
             AERROR("Failed to create layer for view.");
             return FALSE;
@@ -340,8 +369,9 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
         [state->window setDelegate:state->wnd_delegate];
         [state->window setAcceptsMouseMovedEvents:YES];
         [state->window setRestorable:NO];
+        [state->window setReleasedWhenClosed:NO];
 
-        if(![[NSRunningApplication currentApplication] isFinishedLaunching])
+        if (![[NSRunningApplication currentApplication] isFinishedLaunching])
             [NSApp run];
 
         // Making the app a proper UI app since we're unbundled
@@ -351,7 +381,7 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
         [NSApp activateIgnoringOtherApps:YES];
         [state->window makeKeyAndOrderFront:nil];
 
-        //Handle content scaling for various fidelity displays (i.e. Retina)
+        // Handle content scaling for various fidelity displays (i.e. Retina)
         state->handle.layer.bounds = state->view.bounds;
         // It's imporrtant to set the drawableSize to the actual backing pixels. When rendering
         // fullscreen, we can skip the macOS compositor if the size matches the display size.
@@ -380,15 +410,15 @@ b8 platform_startup(platform_state* plat_state, const char* application_name, i3
     }
 }
 
-void platform_shutdown(platform_state* plat_state)
+void platform_shutdown(platform_state *plat_state)
 {
-    if(state_ptr)
+    if (state_ptr)
     {
-        internal_state* state = (internal_state*)state_ptr->internal_state;
+        internal_state *state = (internal_state *)state_ptr->internal_state;
 
         @autoreleasepool
         {
-            [state->window orderOut:nil];
+            [state->window close];
 
             [state->window setDelegate:nil];
             [state->wnd_delegate release];
@@ -408,72 +438,72 @@ void platform_shutdown(platform_state* plat_state)
     state_ptr = 0;
 }
 
-b8 platform_pump_message(platform_state* plat_state)
+b8 platform_pump_message(platform_state *plat_state)
 {
-    if(state_ptr)
+    if (state_ptr)
     {
         @autoreleasepool
         {
-            NSEvent* event;
+            NSEvent *event;
 
-            for(;;)
+            for (;;)
             {
                 event = [NSApp
                     nextEventMatchingMask:NSEventMaskAny
-                    untilDate:[NSDate distantPast]
-                    inMode:NSDefaultRunLoopMode
-                    dequeue:YES];
+                                untilDate:[NSDate distantPast]
+                                   inMode:NSDefaultRunLoopMode
+                                  dequeue:YES];
 
-                if(!event)
+                if (!event)
                     break;
 
                 [NSApp sendEvent:event];
             }
         } // autoreleasepool
 
-        internal_state* state = (internal_state*)plat_state->internal_state;
+        internal_state *state = (internal_state *)plat_state->internal_state;
         return !state->quit_flagged;
     }
 
     return true;
 }
 
-void* platform_allocate(u64 size, b8 aligned)
+void *platform_allocate(u64 size, b8 aligned)
 {
     return malloc(size);
 }
 
-void  platform_free(void* block, b8 aligned)
+void platform_free(void *block, b8 aligned)
 {
     free(block);
 }
 
-void* platform_zero_memory(void* block, u64 size)
+void *platform_zero_memory(void *block, u64 size)
 {
     return memset(block, 0, size);
 }
 
-void* platform_copy_memory(void* dest, const void* source, u64 size)
+void *platform_copy_memory(void *dest, const void *source, u64 size)
 {
     return memcpy(dest, source, size);
 }
 
-void* platform_set_memory(void* dest, i32 value, u64 size)
+void *platform_set_memory(void *dest, i32 value, u64 size)
 {
     return memset(dest, value, size);
 }
 
-void platform_console_write(const char* message, u8 color)
+void platform_console_write(const char *message, u8 color)
 {
     // FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-    const char* color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
+    const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
     printf("\033[%sm%s\033[0m", color_strings[color], message);
 }
 
-void platform_console_write_error(const char* message, u8 color)
+void platform_console_write_error(const char *message, u8 color)
 {
     // FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-    const char* color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
+    const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
     printf("\033[%sm%s\033[0m", color_strings[color], message);
 }
 
@@ -496,7 +526,7 @@ void platform_sleep(u64 ms)
     ts.tv_nsec = (ms % 1000) * 1000 * 1000;
     nanosleep(&ts, 0);
 #else
-    if(ms >= 1000)
+    if (ms >= 1000)
     {
         sleep(ms / 1000);
     }
@@ -505,30 +535,32 @@ void platform_sleep(u64 ms)
 #endif
 }
 
-static keys translate_keycode(u32 ns_keycode) {
+static keys translate_keycode(u32 ns_keycode)
+{
     // https://boredzo.org/blog/wp-content/uploads/2007/05/IMTx-virtual-keycodes.pdf
     // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-    switch (ns_keycode) {
-        case 0x52:
-            return KEY_NUMPAD0;
-        case 0x53:
-            return KEY_NUMPAD1;
-        case 0x54:
-            return KEY_NUMPAD2;
-        case 0x55:
-            return KEY_NUMPAD3;
-        case 0x56:
-            return KEY_NUMPAD4;
-        case 0x57:
-            return KEY_NUMPAD5;
-        case 0x58:
-            return KEY_NUMPAD6;
-        case 0x59:
-            return KEY_NUMPAD7;
-        case 0x5B:
-            return KEY_NUMPAD8;
-        case 0x5C:
-            return KEY_NUMPAD9;
+    switch (ns_keycode)
+    {
+    case 0x52:
+        return KEY_NUMPAD0;
+    case 0x53:
+        return KEY_NUMPAD1;
+    case 0x54:
+        return KEY_NUMPAD2;
+    case 0x55:
+        return KEY_NUMPAD3;
+    case 0x56:
+        return KEY_NUMPAD4;
+    case 0x57:
+        return KEY_NUMPAD5;
+    case 0x58:
+        return KEY_NUMPAD6;
+    case 0x59:
+        return KEY_NUMPAD7;
+    case 0x5B:
+        return KEY_NUMPAD8;
+    case 0x5C:
+        return KEY_NUMPAD9;
 
         // case 0x12:
         //     return KEY_1;
@@ -551,194 +583,194 @@ static keys translate_keycode(u32 ns_keycode) {
         // case 0x1D:
         //     return KEY_0;
 
-        case 0x00:
-            return KEY_A;
-        case 0x0B:
-            return KEY_B;
-        case 0x08:
-            return KEY_C;
-        case 0x02:
-            return KEY_D;
-        case 0x0E:
-            return KEY_E;
-        case 0x03:
-            return KEY_F;
-        case 0x05:
-            return KEY_G;
-        case 0x04:
-            return KEY_H;
-        case 0x22:
-            return KEY_I;
-        case 0x26:
-            return KEY_J;
-        case 0x28:
-            return KEY_K;
-        case 0x25:
-            return KEY_L;
-        case 0x2E:
-            return KEY_M;
-        case 0x2D:
-            return KEY_N;
-        case 0x1F:
-            return KEY_O;
-        case 0x23:
-            return KEY_P;
-        case 0x0C:
-            return KEY_Q;
-        case 0x0F:
-            return KEY_R;
-        case 0x01:
-            return KEY_S;
-        case 0x11:
-            return KEY_T;
-        case 0x20:
-            return KEY_U;
-        case 0x09:
-            return KEY_V;
-        case 0x0D:
-            return KEY_W;
-        case 0x07:
-            return KEY_X;
-        case 0x10:
-            return KEY_Y;
-        case 0x06:
-            return KEY_Z;
+    case 0x00:
+        return KEY_A;
+    case 0x0B:
+        return KEY_B;
+    case 0x08:
+        return KEY_C;
+    case 0x02:
+        return KEY_D;
+    case 0x0E:
+        return KEY_E;
+    case 0x03:
+        return KEY_F;
+    case 0x05:
+        return KEY_G;
+    case 0x04:
+        return KEY_H;
+    case 0x22:
+        return KEY_I;
+    case 0x26:
+        return KEY_J;
+    case 0x28:
+        return KEY_K;
+    case 0x25:
+        return KEY_L;
+    case 0x2E:
+        return KEY_M;
+    case 0x2D:
+        return KEY_N;
+    case 0x1F:
+        return KEY_O;
+    case 0x23:
+        return KEY_P;
+    case 0x0C:
+        return KEY_Q;
+    case 0x0F:
+        return KEY_R;
+    case 0x01:
+        return KEY_S;
+    case 0x11:
+        return KEY_T;
+    case 0x20:
+        return KEY_U;
+    case 0x09:
+        return KEY_V;
+    case 0x0D:
+        return KEY_W;
+    case 0x07:
+        return KEY_X;
+    case 0x10:
+        return KEY_Y;
+    case 0x06:
+        return KEY_Z;
 
-        // case 0x27:
-        //     return KEY_APOSTROPHE;
-        // case 0x2A:
-        //     return KEY_BACKSLASH;
-        case 0x2B:
-            return KEY_COMMA;
-        // case 0x18:
-        //     return KEY_EQUAL; // Equal/Plus
-        case 0x32:
-            return KEY_GRAVE;
-        // case 0x21:
-        //     return KEY_LBRACKET; 
-        case 0x1B:
-            return KEY_MINUS;
-        case 0x2F:
-            return KEY_PERIOD;
-        // case 0x1E:
-        //     return KEY_RBRACKET;
-        case 0x29:
-            return KEY_SEMICOLON;
-        case 0x2C:
-            return KEY_SLASH;
-        case 0x0A:
-            return KEYS_MAX_KEYS; // ?
+    // case 0x27:
+    //     return KEY_APOSTROPHE;
+    // case 0x2A:
+    //     return KEY_BACKSLASH;
+    case 0x2B:
+        return KEY_COMMA;
+    // case 0x18:
+    //     return KEY_EQUAL; // Equal/Plus
+    case 0x32:
+        return KEY_GRAVE;
+    // case 0x21:
+    //     return KEY_LBRACKET;
+    case 0x1B:
+        return KEY_MINUS;
+    case 0x2F:
+        return KEY_PERIOD;
+    // case 0x1E:
+    //     return KEY_RBRACKET;
+    case 0x29:
+        return KEY_SEMICOLON;
+    case 0x2C:
+        return KEY_SLASH;
+    case 0x0A:
+        return KEYS_MAX_KEYS; // ?
 
-        case 0x33:
-            return KEY_BACKSPACE;
-        case 0x39:
-            return KEY_CAPITAL;
-        case 0x75:
-            return KEY_DELETE;
-        case 0x7D:
-            return KEY_DOWN;
-        case 0x77:
-            return KEY_END;
-        case 0x24:
-            return KEY_ENTER;
-        case 0x35:
-            return KEY_ESCAPE;
-        case 0x7A:
-            return KEY_F1;
-        case 0x78:
-            return KEY_F2;
-        case 0x63:
-            return KEY_F3;
-        case 0x76:
-            return KEY_F4;
-        case 0x60:
-            return KEY_F5;
-        case 0x61:
-            return KEY_F6;
-        case 0x62:
-            return KEY_F7;
-        case 0x64:
-            return KEY_F8;
-        case 0x65:
-            return KEY_F9;
-        case 0x6D:
-            return KEY_F10;
-        case 0x67:
-            return KEY_F11;
-        case 0x6F:
-            return KEY_F12;
-        case 0x69:
-            return KEY_PRINT;
-        case 0x6B:
-            return KEY_F14;
-        case 0x71:
-            return KEY_F15;
-        case 0x6A:
-            return KEY_F16;
-        case 0x40:
-            return KEY_F17;
-        case 0x4F:
-            return KEY_F18;
-        case 0x50:
-            return KEY_F19;
-        case 0x5A:
-            return KEY_F20;
-        case 0x73:
-            return KEY_HOME;
-        case 0x72:
-            return KEY_INSERT;
-        // case 0x7B:
-        //     return KEY_LEFT;
-        // case 0x3A:
-        //     return KEY_LALT;
-        case 0x3B:
-            return KEY_LCONTROL;
-        case 0x38:
-            return KEY_LSHIFT;
-        // case 0x37:
-        //     return KEY_LSUPER;
-        case 0x6E:
-            return KEYS_MAX_KEYS; // Menu
-        case 0x47:
-            return KEY_NUMLOCK;
-        case 0x79:
-            return KEYS_MAX_KEYS; // Page down
-        case 0x74:
-            return KEYS_MAX_KEYS; // Page up
-        case 0x7C:
-            return KEY_RIGHT;
-        // case 0x3D:
-        //     return KEY_RALT;
-        case 0x3E:
-            return KEY_RCONTROL;
-        case 0x3C:
-            return KEY_RSHIFT;
-        // case 0x36:
-        //     return KEY_RSUPER;
-        case 0x31:
-            return KEY_SPACE;
-        case 0x30:
-            return KEY_TAB;
-        case 0x7E:
-            return KEY_UP;
+    case 0x33:
+        return KEY_BACKSPACE;
+    case 0x39:
+        return KEY_CAPITAL;
+    case 0x75:
+        return KEY_DELETE;
+    case 0x7D:
+        return KEY_DOWN;
+    case 0x77:
+        return KEY_END;
+    case 0x24:
+        return KEY_ENTER;
+    case 0x35:
+        return KEY_ESCAPE;
+    case 0x7A:
+        return KEY_F1;
+    case 0x78:
+        return KEY_F2;
+    case 0x63:
+        return KEY_F3;
+    case 0x76:
+        return KEY_F4;
+    case 0x60:
+        return KEY_F5;
+    case 0x61:
+        return KEY_F6;
+    case 0x62:
+        return KEY_F7;
+    case 0x64:
+        return KEY_F8;
+    case 0x65:
+        return KEY_F9;
+    case 0x6D:
+        return KEY_F10;
+    case 0x67:
+        return KEY_F11;
+    case 0x6F:
+        return KEY_F12;
+    case 0x69:
+        return KEY_PRINT;
+    case 0x6B:
+        return KEY_F14;
+    case 0x71:
+        return KEY_F15;
+    case 0x6A:
+        return KEY_F16;
+    case 0x40:
+        return KEY_F17;
+    case 0x4F:
+        return KEY_F18;
+    case 0x50:
+        return KEY_F19;
+    case 0x5A:
+        return KEY_F20;
+    case 0x73:
+        return KEY_HOME;
+    case 0x72:
+        return KEY_INSERT;
+    // case 0x7B:
+    //     return KEY_LEFT;
+    // case 0x3A:
+    //     return KEY_LALT;
+    case 0x3B:
+        return KEY_LCONTROL;
+    case 0x38:
+        return KEY_LSHIFT;
+    // case 0x37:
+    //     return KEY_LSUPER;
+    case 0x6E:
+        return KEYS_MAX_KEYS; // Menu
+    case 0x47:
+        return KEY_NUMLOCK;
+    case 0x79:
+        return KEYS_MAX_KEYS; // Page down
+    case 0x74:
+        return KEYS_MAX_KEYS; // Page up
+    case 0x7C:
+        return KEY_RIGHT;
+    // case 0x3D:
+    //     return KEY_RALT;
+    case 0x3E:
+        return KEY_RCONTROL;
+    case 0x3C:
+        return KEY_RSHIFT;
+    // case 0x36:
+    //     return KEY_RSUPER;
+    case 0x31:
+        return KEY_SPACE;
+    case 0x30:
+        return KEY_TAB;
+    case 0x7E:
+        return KEY_UP;
 
-        case 0x45:
-            return KEY_ADD;
-        case 0x41:
-            return KEY_DECIMAL;
-        case 0x4B:
-            return KEY_DIVIDE;
-        case 0x4C:
-            return KEY_ENTER;
-        case 0x51:
-            return KEY_NUMPAD_EQUAL;
-        case 0x43:
-            return KEY_MULTIPLY;
-        case 0x4E:
-            return KEY_SUBTRACT;
+    case 0x45:
+        return KEY_ADD;
+    case 0x41:
+        return KEY_DECIMAL;
+    case 0x4B:
+        return KEY_DIVIDE;
+    case 0x4C:
+        return KEY_ENTER;
+    case 0x51:
+        return KEY_NUMPAD_EQUAL;
+    case 0x43:
+        return KEY_MULTIPLY;
+    case 0x4E:
+        return KEY_SUBTRACT;
 
-        default:
-            return KEYS_MAX_KEYS;
+    default:
+        return KEYS_MAX_KEYS;
     }
 }
 
@@ -765,26 +797,26 @@ static void handle_modifier_key(
     u32 l_mask,
     u32 r_mask)
 {
-    internal_state* state = (internal_state*)state_ptr->internal_state;
+    internal_state *state = (internal_state *)state_ptr->internal_state;
 
-    if(modifier_flags & ns_key_mask)
+    if (modifier_flags & ns_key_mask)
     {
         // Check left variant
-        if(modifier_flags & l_mask)
+        if (modifier_flags & l_mask)
         {
-            if(!(state->modifier_key_states & l_mod))
+            if (!(state->modifier_key_states & l_mod))
             {
                 state->modifier_key_states |= l_mod;
 
-                //Report the keypress
+                // Report the keypress
                 input_process_key(k_l_keycode, true);
             }
         }
 
         // Check right variant
-        if(modifier_flags & r_mask)
+        if (modifier_flags & r_mask)
         {
-            if(!(state->modifier_key_states & r_mod))
+            if (!(state->modifier_key_states & r_mod))
             {
                 state->modifier_key_states |= r_mod;
 
@@ -795,9 +827,9 @@ static void handle_modifier_key(
     }
     else
     {
-        if(ns_keycode == ns_l_keycode)
+        if (ns_keycode == ns_l_keycode)
         {
-            if(state->modifier_key_states & l_mod)
+            if (state->modifier_key_states & l_mod)
             {
                 state->modifier_key_states &= ~(l_mod);
 
@@ -806,9 +838,9 @@ static void handle_modifier_key(
             }
         }
 
-        if(ns_keycode == ns_r_keycode)
+        if (ns_keycode == ns_r_keycode)
         {
-            if(state->modifier_key_states & r_mod)
+            if (state->modifier_key_states & r_mod)
             {
                 state->modifier_key_states &= ~(r_mod);
 
@@ -833,8 +865,7 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags)
         MACOS_MODIFIER_KEY_LSHIFT,
         MACOS_MODIFIER_KEY_RSHIFT,
         MACOS_LSHIFT_MASK,
-        MACOS_RSHIFT_MASK
-    );
+        MACOS_RSHIFT_MASK);
 
     ATRACE("modifier flags keycode: %u", ns_keycode);
 
@@ -850,8 +881,7 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags)
         MACOS_MODIFIER_KEY_LCTRL,
         MACOS_MODIFIER_KEY_RCTRL,
         MACOS_LCTRL_MASK,
-        MACOS_RCTRL_MASK
-    );
+        MACOS_RCTRL_MASK);
 
     // Alt/Option
     // handle_modifier_key(
@@ -884,9 +914,9 @@ static void handle_modifier_keys(u32 ns_keycode, u32 modifier_flags)
     // );
 
     // Caps lock - handled a bit differently than other keys.
-    if(ns_keycode == 0x39)
+    if (ns_keycode == 0x39)
     {
-        if(modifier_flags & NSEventModifierFlagCapsLock)
+        if (modifier_flags & NSEventModifierFlagCapsLock)
         {
             // Report as a keypress. This notifies the system that caps lock
             // has been turned on.
