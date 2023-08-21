@@ -12,7 +12,7 @@ cFilenames=$(find . -type f -name "*.c")
 assembly="testbed"
 compilerFlags="-g -fdeclspec -fPIC"
 includeFlags="-Isrc -I../engine/src"
-linkerFlags="-L../bin/ -lengine -Wl,-rpath,."
+linkerFlags="-L../bin/ -L$VULKAN_SDK/lib -lengine -Wl,-rpath,."
 defines="-D_DEBUG -DAIMPORT"
 
 echo "Building $assembly..."

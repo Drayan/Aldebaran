@@ -21,6 +21,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/",
             "MIMode": "lldb",
+            "targetArchitecture": "arm64",
             "environment": []
         },
         {
