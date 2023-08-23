@@ -1,11 +1,11 @@
 #include "vulkan_backend.h"
 
-#include "vulkan_types.inl"
-#include "vulkan_platform.h"
 #include "vulkan_device.h"
+#include "vulkan_platform.h"
+#include "vulkan_types.inl"
 
-#include "core/logger.h"
 #include "core/astring.h"
+#include "core/logger.h"
 
 #include "core/containers/darray.h"
 
@@ -14,10 +14,13 @@ static vulkan_context context;
 VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
     VkDebugUtilsMessageTypeFlagsEXT message_types,
-    const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
-    void *user_data);
+    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    void* user_data);
 
-b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
+b8 vulkan_renderer_backend_initialize(
+    renderer_backend* backend,
+    const char* application_name,
+    struct platform_state* plat_state)
 {
     // TODO: Create a custom allocator.
     context.allocator = 0;
@@ -33,7 +36,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     create_info.pApplicationInfo = &app_info;
 
     // Obtain a list of required extensions
-    const char **required_extensions = darray_create(const char *);
+    const char** required_extensions = darray_create(const char*);
     darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME);   // Generic surface extension.
     platform_get_required_vulkan_extension_names(&required_extensions); // Platform-specific extension(s).
 #if defined(_DEBUG)
@@ -51,7 +54,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     create_info.ppEnabledExtensionNames = required_extensions;
 
     // Validation layers
-    const char **required_validation_layer_names = 0;
+    const char** required_validation_layer_names = 0;
     u32 required_validation_layer_count = 0;
 
 // If validation should be done, get a list of the required validation layers names
@@ -60,14 +63,14 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     AINFO("Validation layers enabled. Enumerating...");
 
     // The list of validation layers required.
-    required_validation_layer_names = darray_create(const char *);
+    required_validation_layer_names = darray_create(const char*);
     darray_push(required_validation_layer_names, &"VK_LAYER_KHRONOS_validation");
     required_validation_layer_count = darray_length(required_validation_layer_names);
 
     // Obtain a list of available validation layers.
     u32 available_layer_count = 0;
     VK_CHECK(vkEnumerateInstanceLayerProperties(&available_layer_count, 0));
-    VkLayerProperties *available_layers = darray_reserve(VkLayerProperties, available_layer_count);
+    VkLayerProperties* available_layers = darray_reserve(VkLayerProperties, available_layer_count);
     VK_CHECK(vkEnumerateInstanceLayerProperties(&available_layer_count, available_layers));
 
     // Verify all required layers are available.
@@ -105,23 +108,28 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
 #if defined(_DEBUG)
     ADEBUG("Creating Vulkan debugger...");
-    u32 log_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+    u32 log_severity
+        = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
 
-    VkDebugUtilsMessengerCreateInfoEXT debug_create_info = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+    VkDebugUtilsMessengerCreateInfoEXT debug_create_info
+        = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
     debug_create_info.messageSeverity = log_severity;
-    debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+    debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+                                    | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+                                    | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
     debug_create_info.pfnUserCallback = vk_debug_callback;
     debug_create_info.pUserData = 0;
 
-    PFN_vkCreateDebugUtilsMessengerEXT func =
-        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
+    PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        context.instance,
+        "vkCreateDebugUtilsMessengerEXT");
     AASSERT_MSG(func, "Failed to create debug messenger!");
     VK_CHECK(func(context.instance, &debug_create_info, context.allocator, &context.debug_messenger));
     ADEBUG("Vulkan debugger created.");
 #endif
 
     // Surface creation
+    platform_create_vulkan_surface(plat_state, &context);
 
     // Device creation
     if (!vulkan_device_create(&context))
@@ -138,14 +146,15 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     return TRUE;
 }
 
-void vulkan_renderer_backend_shutdown(renderer_backend *backend)
+void vulkan_renderer_backend_shutdown(renderer_backend* backend)
 {
 #if defined(_DEBUG)
     ADEBUG("Destroying Vulkan debugger...");
     if (context.debug_messenger)
     {
-        PFN_vkDestroyDebugUtilsMessengerEXT func =
-            (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkDestroyDebugUtilsMessengerEXT");
+        PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            context.instance,
+            "vkDestroyDebugUtilsMessengerEXT");
         func(context.instance, context.debug_messenger, context.allocator);
     }
 #endif
@@ -154,25 +163,17 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
     vkDestroyInstance(context.instance, context.allocator);
 }
 
-void vulkan_renderer_backend_on_resize(renderer_backend *backend, u16 width, u16 height)
-{
-}
+void vulkan_renderer_backend_on_resize(renderer_backend* backend, u16 width, u16 height) {}
 
-b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time)
-{
-    return TRUE;
-}
+b8 vulkan_renderer_backend_begin_frame(renderer_backend* backend, f32 delta_time) { return TRUE; }
 
-b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)
-{
-    return TRUE;
-}
+b8 vulkan_renderer_backend_end_frame(renderer_backend* backend, f32 delta_time) { return TRUE; }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
     VkDebugUtilsMessageTypeFlagsEXT message_types,
-    const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
-    void *user_data)
+    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+    void* user_data)
 {
     switch (message_severity)
     {
