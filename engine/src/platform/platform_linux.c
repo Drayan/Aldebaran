@@ -352,6 +352,11 @@ u32 platform_get_required_vulkan_flags()
     return 0;
 }
 
+b8 platform_create_vulkan_surface(platform_state *plat_state, vulkan_context *context)
+{
+    return TRUE;
+}
+
 keys translate_keycode(u32 x_keycode)
 {
     switch (x_keycode)

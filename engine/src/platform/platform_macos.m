@@ -2,6 +2,8 @@
 
 #if defined(APLATFORM_APPLE)
 
+#define VK_USE_PLATFORM_METAL_EXT
+
 #include "core/logger.h"
 #include "core/event.h"
 #include "core/input.h"
@@ -15,6 +17,10 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 #import <QuartzCore/CAMetalLayer.h>
+
+// For surface creation
+#include <vulkan/vulkan.h>
+#include "renderer/vulkan/vulkan_types.inl"
 
 @class ApplicationDelegate;
 @class WindowDelegate;
@@ -498,7 +504,7 @@ void *platform_set_memory(void *dest, i32 value, u64 size)
 void platform_console_write(const char *message, u8 color)
 {
     // FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-    //const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
+    // const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
     // printf("\033[%sm%s\033[0m", color_strings[color], message);
 
     // NOTE: As of 21/08/23, lldb doesn't support colored output and just print the escape
@@ -511,7 +517,7 @@ void platform_console_write(const char *message, u8 color)
 void platform_console_write_error(const char *message, u8 color)
 {
     // FATAL, ERROR, WARN, INFO, DEBUG, TRACE
-    //const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
+    // const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "1;30"};
     // printf("\033[%sm%s\033[0m", color_strings[color], message);
     NSLog(@"%s", message);
 }
@@ -544,7 +550,7 @@ void platform_sleep(u64 ms)
 #endif
 }
 
-void platform_get_required_vulkan_extension_names(const char *** names_darray)
+void platform_get_required_vulkan_extension_names(const char ***names_darray)
 {
     // NOTE: Starting from Vulkan 1.3.216, theses extensions MUST be enabled on OSX to being able
     // to initialize the instance. As I'll probably refactor these later, and I'll probably
@@ -552,13 +558,34 @@ void platform_get_required_vulkan_extension_names(const char *** names_darray)
     // platform now.
     darray_push(*names_darray, &"VK_KHR_portability_enumeration");
     darray_push(*names_darray, &"VK_KHR_get_physical_device_properties2");
-    
+
     darray_push(*names_darray, &"VK_EXT_metal_surface");
 }
 
 u32 platform_get_required_vulkan_flags()
 {
     return 1; // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+}
+
+b8 platform_create_vulkan_surface(platform_state *plat_state, vulkan_context *context)
+{
+    internal_state *state = (internal_state *)plat_state->internal_state;
+
+    VkMetalSurfaceCreateInfoEXT create_info = {VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
+    create_info.pLayer = state->handle.layer;
+
+    VkResult result = vkCreateMetalSurfaceEXT(
+        context->instance,
+        &create_info,
+        context->allocator,
+        &context->surface);
+    if (result != VK_SUCCESS)
+    {
+        AFATAL("Vulkan surface creation failed.");
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 static keys translate_keycode(u32 ns_keycode)

@@ -204,6 +204,11 @@ u32 platform_get_required_vulkan_flags()
     return 0;
 }
 
+b8 platform_create_vulkan_surface(platform_state *plat_state, vulkan_context *context)
+{
+    return TRUE;
+}
+
 LRESULT win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param)
 {
     switch (msg)
