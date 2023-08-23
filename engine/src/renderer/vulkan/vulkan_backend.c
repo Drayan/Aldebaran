@@ -97,7 +97,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     create_info.enabledLayerCount = required_validation_layer_count;
     create_info.ppEnabledLayerNames = required_validation_layer_names;
 
-    create_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    create_info.flags = platform_get_required_vulkan_flags();
 
     VK_CHECK(vkCreateInstance(&create_info, context.allocator, &context.instance));
     AINFO("Vulkan Instance created.");

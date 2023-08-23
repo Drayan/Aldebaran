@@ -556,6 +556,11 @@ void platform_get_required_vulkan_extension_names(const char *** names_darray)
     darray_push(*names_darray, &"VK_EXT_metal_surface");
 }
 
+u32 platform_get_required_vulkan_flags()
+{
+    return 1; // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
+}
+
 static keys translate_keycode(u32 ns_keycode)
 {
     // https://boredzo.org/blog/wp-content/uploads/2007/05/IMTx-virtual-keycodes.pdf

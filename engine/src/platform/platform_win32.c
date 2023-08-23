@@ -199,6 +199,11 @@ void platform_get_required_vulkan_extension_names(const char ***names_darray)
     darray_push(*names_darray, &"VK_KHR_win32_surface");
 }
 
+u32 platform_get_required_vulkan_flags()
+{
+    return 0;
+}
+
 LRESULT win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param)
 {
     switch (msg)
