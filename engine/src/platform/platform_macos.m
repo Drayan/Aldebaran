@@ -7,6 +7,8 @@
 #include "core/input.h"
 #include "core/amemory.h"
 
+#include "core/containers/darray.h"
+
 #include <mach/mach_time.h>
 
 #import <Foundation/Foundation.h>
@@ -540,6 +542,18 @@ void platform_sleep(u64 ms)
 
     usleep((ms % 1000) * 1000);
 #endif
+}
+
+void platform_get_required_vulkan_extension_names(const char *** names_darray)
+{
+    // NOTE: Starting from Vulkan 1.3.216, theses extensions MUST be enabled on OSX to being able
+    // to initialize the instance. As I'll probably refactor these later, and I'll probably
+    // have to make a system to enabled extensions on other platforms, I'm not going to differentiace
+    // platform now.
+    darray_push(*names_darray, &"VK_KHR_portability_enumeration");
+    darray_push(*names_darray, &"VK_KHR_get_physical_device_properties2");
+    
+    darray_push(*names_darray, &"VK_EXT_metal_surface");
 }
 
 static keys translate_keycode(u32 ns_keycode)
