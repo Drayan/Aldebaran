@@ -9,12 +9,17 @@
 
 #include <windows.h>
 #include <windowsx.h> // Param input extraction
-#include "platform.h"
+#include <stdlib.h>
+
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_win32.h>
+#include "renderer/vulkan/vulkan_types.inl"
 
 typedef struct internal_state
 {
     HINSTANCE h_instance;
     HWND hwnd;
+    VkSurfaceKHR surface;
 } internal_state;
 
 // Clock
@@ -206,6 +211,21 @@ u32 platform_get_required_vulkan_flags()
 
 b8 platform_create_vulkan_surface(platform_state *plat_state, vulkan_context *context)
 {
+    // Simply cold-cast to the known type.
+    internal_state* state = (internal_state*)plat_state->internal_state;
+
+    VkWin32SurfaceCreateInfoKHR create_info = {VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
+    create_info.hinstance = state->h_instance;
+    create_info.hwnd = state->hwnd;
+
+    VkResult result = vkCreateWin32SurfaceKHR(context->instance, &create_info, context->allocator, &state->surface);
+    if(result != VK_SUCCESS)
+    {
+        AFATAL("Vulkan surface creation failed.");
+        return FALSE;
+    }
+
+    context->surface = state->surface;
     return TRUE;
 }
 
