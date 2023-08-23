@@ -7,9 +7,11 @@
 #include <vulkan/vulkan.h>
 
 // Checks the given exprs against VK_SUCCESS.
-#define VK_CHECK(expr)               \
-    {                                \
-        AASSERT(expr == VK_SUCCESS); \
+#define VK_CHECK(expr)                              \
+    {                                               \
+        VkResult result = expr;                     \
+        ATRACE("Returned VK_CHECK %i.", result);    \
+        AASSERT(result == VK_SUCCESS);              \
     }
 
 typedef struct vulkan_context

@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "xkblib.h": "c"
+        "xkblib.h": "c",
+        "functional": "c"
     }
 }
